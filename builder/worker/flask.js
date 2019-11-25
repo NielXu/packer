@@ -11,10 +11,19 @@ module.exports = {
         req.push(templates, static);
     },
     resolveFiles: function(req, backendDir) {
-        const requirements = path.resolve(__dirname, 'templates', 'flask.min.txt');
+        const flaskDir = path.resolve(__dirname, 'templates', 'flask');
+        const requirements = path.resolve(flaskDir, 'req.min.txt');
+        const app = path.resolve(flaskDir, 'app.min.txt');
+        const database = path.resolve(flaskDir, 'db.min.txt');
         req.push({
             source: requirements,
             target: path.resolve(backendDir, 'requirements.txt')
+        }, {
+            source: app,
+            target: path.resolve(backendDir, 'app.py')
+        }, {
+            source: database,
+            target: path.resolve(backendDir, 'database.py')
         });
     },
     build: function(backendDir) {
