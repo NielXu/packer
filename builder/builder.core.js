@@ -9,16 +9,18 @@ const fs = require('fs');
  * Resolving the frontend directories, push all the require
  * directories to the given array
  * 
- * @param {Object} reqPaths An array of required paths
+ * @param {Object} reqDirs An array of required paths
+ * @param {Object} reqFiles An array of required files
  * @param {String} frontend One of the frontend option
  * @param {String} dir Working directory
  */
-function resolveFrontend(reqPaths, frontend, dir) {
+function resolveFrontend(reqDirs, reqFiles, frontend, dir) {
     const frontendDir = path.resolve(dir, 'frontend');
-    reqPaths.push(frontendDir);
+    reqDirs.push(frontendDir);
     try {
-        const { resolve } = require(`./worker/${frontend}`);
-        resolve(reqPaths, frontendDir);
+        const { resolve, resolveFiles } = require(`./worker/${frontend}`);
+        resolve(reqDirs, frontendDir);
+        resolveFiles(reqFiles, frontendDir);
     }
     catch(e) {
         console.log(`Worker not found: ${frontend}`);
@@ -30,16 +32,18 @@ function resolveFrontend(reqPaths, frontend, dir) {
  * Resolving the backend directories, push all the require
  * directories to the given array.
  * 
- * @param {Object} reqPaths An array of required paths
+ * @param {Object} reqDirs An array of required paths
+ * @param {Object} reqFiles An array of required files
  * @param {String} backend One of the backend option
  * @param {String} dir Working directory
  */
-function resolveBackend(reqPaths, backend, dir) {
+function resolveBackend(reqDirs, reqFiles, backend, dir) {
     const backendDir = path.resolve(dir, 'backend');
-    reqPaths.push(backendDir);
+    reqDirs.push(backendDir);
     try {
-        const { resolve } = require(`./worker/${backend}`);
-        resolve(reqPaths, backendDir);
+        const { resolve, resolveFiles } = require(`./worker/${backend}`);
+        resolve(reqDirs, backendDir);
+        resolveFiles(reqFiles, backendDir);
     }
     catch(e) {
         console.log(`\nWorker not found: ${backend}`);
@@ -52,12 +56,25 @@ function resolveBackend(reqPaths, backend, dir) {
  * The order of the array does matter since directories
  * depend with each other.
  * 
- * @param {Object} reqPaths An array of required paths
+ * @param {Object} reqDirs An array of required paths
  */
-function buildReq(reqPaths) {
-    reqPaths.forEach(e => {
+function buildDir(reqDirs) {
+    reqDirs.forEach(e => {
         fs.mkdirSync(e);
         console.log(`Successfully created directory: ${e}`);
+    });
+}
+
+/**
+ * Build the require files using `fs.copyFileSync`, the files
+ * will be copied to the working directory.
+ * 
+ * @param {Object} reqFiles An array of required files
+ */
+function buildFiles(reqFiles) {
+    reqFiles.forEach(e => {
+        fs.copyFileSync(e.source, e.target);
+        console.log(`Successfully created file: ${e.target}`);
     });
 }
 
@@ -74,15 +91,19 @@ module.exports = {
      * 
      * @throws Exception if directory already exists
      */
-    buildDir: function(dir, name, backend, frontend, useConfig) {
+    build: function(dir, name, backend, frontend, useConfig) {
         const projectDir = path.resolve(dir, name);
-        let reqPaths = [];
+        let reqDirs = [], reqFiles = [];
         if(fs.existsSync(projectDir)) {
             throw `Project '${name}' already exists under directory '${path.resolve(dir)}'`;
         }
-        reqPaths.push(projectDir);
-        resolveBackend(reqPaths, backend, projectDir);
-        resolveFrontend(reqPaths, frontend, projectDir);
-        buildReq(reqPaths);
+        reqDirs.push(projectDir);
+        // Resolve backend and frontend
+        resolveBackend(reqDirs, reqFiles, backend, projectDir);
+        resolveFrontend(reqDirs, reqFiles, frontend, projectDir);
+        // Build directories
+        buildDir(reqDirs);
+        // Build files
+        buildFiles(reqFiles);
     }
 }

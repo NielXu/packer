@@ -9,4 +9,10 @@ module.exports = {
         const js = path.resolve(frontendDir, 'js');
         req.push(css, js);
     },
+    resolveFiles: function(req, frontendDir) {
+
+    },
+    build: function(frontendDir) {
+
+    }
 }
