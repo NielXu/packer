@@ -15,6 +15,7 @@ module.exports = {
         const requirements = path.resolve(flaskDir, 'req.min.txt');
         const app = path.resolve(flaskDir, 'app.min.txt');
         const database = path.resolve(flaskDir, 'db.min.txt');
+        const html = path.resolve(flaskDir, 'index.min.txt');
         req.push({
             source: requirements,
             target: path.resolve(backendDir, 'requirements.txt')
@@ -24,6 +25,9 @@ module.exports = {
         }, {
             source: database,
             target: path.resolve(backendDir, 'database.py')
+        }, {
+            source: html,
+            target: path.resolve(backendDir, 'templates', 'index.html')
         });
     },
     build: function(backendDir) {
