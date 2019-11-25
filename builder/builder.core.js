@@ -16,22 +16,14 @@ const fs = require('fs');
 function resolveFrontend(reqPaths, frontend, dir) {
     const frontendDir = path.resolve(dir, 'frontend');
     reqPaths.push(frontendDir);
-    if(frontend === 'react') {
-        resolveReact(reqPaths, frontendDir);
+    try {
+        const { resolve } = require(`./worker/${frontend}`);
+        resolve(reqPaths, frontendDir);
     }
-}
-
-/**
- * Resolve the react frontend, push necessary directories
- * to the given array
- * 
- * @param {Object} reqPaths An array of required paths
- * @param {String} backendDir Backend directory
- */
-function resolveReact(reqPaths, frontendDir) {
-    const css = path.resolve(frontendDir, 'css');
-    const js = path.resolve(frontendDir, 'js');
-    reqPaths.push(css, js);
+    catch(e) {
+        console.log(`Worker not found: ${frontend}`);
+        process.exit(1);
+    }
 }
 
 /**
@@ -45,36 +37,14 @@ function resolveReact(reqPaths, frontendDir) {
 function resolveBackend(reqPaths, backend, dir) {
     const backendDir = path.resolve(dir, 'backend');
     reqPaths.push(backendDir);
-    if(backend === 'flask') {
-        resolveFlask(reqPaths, backendDir);
+    try {
+        const { resolve } = require(`./worker/${backend}`);
+        resolve(reqPaths, backendDir);
     }
-    else if(backend === 'express') {
-        resolveExpress(reqPaths, backendDir);
+    catch(e) {
+        console.log(`\nWorker not found: ${backend}`);
+        process.exit(1);
     }
-}
-
-/**
- * Resolve the flask backend, push necessary directories
- * to the given array
- * 
- * @param {Object} reqPaths An array of required paths
- * @param {String} backendDir Backend directory
- */
-function resolveFlask(reqPaths, backendDir) {
-    const templates = path.resolve(backendDir, 'templates');
-    const static = path.resolve(backendDir, 'static');
-    reqPaths.push(templates, static);
-}
-
-/**
- * Resolve the express backend, push necessary directories
- * to the given array
- * 
- * @param {Object} reqPaths An array of required paths
- * @param {String} backendDir Backend directory
- */
-function resolveExpress(reqPaths, backendDir) {
-    throw `Express backend is not yet implemented`;
 }
 
 /**
