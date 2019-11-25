@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
-const { buildDir } = require('./builder/builder.core');
+const { build } = require('./builder/builder.core');
 
 console.log();
 console.log('Welcome to packer v1.0.0');
@@ -49,7 +49,7 @@ var questions = [
 
 inquirer.prompt(questions).then(answers => {
     try {
-        buildDir(answers.workdir, answers.name, answers.backend,
+        build(answers.workdir, answers.name, answers.backend,
             answers.frontend, answers.useConfig);
     }
     catch(e) {
