@@ -50,7 +50,7 @@ var questions = [
 inquirer.prompt(questions).then(answers => {
     try {
         build(answers.workdir, answers.name, answers.backend,
-            answers.frontend, answers.useConfig);
+            answers.frontend, answers.useConfig, answers.database);
     }
     catch(e) {
         console.log("\nErorr happened when building your web application");

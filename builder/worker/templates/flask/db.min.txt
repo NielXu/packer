@@ -1,2 +1,6 @@
+#!Glue@DatabaseImport
+
+#!Glue@DatabaseConfig
+
 def test():
-    pass
+    #!Glue@DatabaseTest

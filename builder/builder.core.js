@@ -66,6 +66,27 @@ function buildDir(reqDirs) {
 }
 
 /**
+ * Glue the database and backend, the database configurations
+ * and test codes might be different for different backends and
+ * databases
+ * 
+ * @param {String} dir Working directory
+ * @param {String} backend One of the backend option
+ * @param {String} database One of the database option
+ */
+function glue(dir, backend, database) {
+    const backendDir = path.resolve(dir, 'backend');
+    try {
+        const { glue } = require(`./worker/${backend}`);
+        glue(backendDir, database);
+    }
+    catch(e) {
+        console.log(`Glue is not defined in worker: ${backendDir}`);
+        process.exit(1);
+    }
+}
+
+/**
  * Build the require files using `fs.copyFileSync`, the files
  * will be copied to the working directory.
  * 
@@ -88,10 +109,11 @@ module.exports = {
      * @param {String} name The project name
      * @param {String} backend One of the backend option
      * @param {String} frontend One of the frontend option
+     * @param {String} database One of the database option
      * 
      * @throws Exception if directory already exists
      */
-    build: function(dir, name, backend, frontend, useConfig) {
+    build: function(dir, name, backend, frontend, useConfig, database) {
         const projectDir = path.resolve(dir, name);
         let reqDirs = [], reqFiles = [];
         if(fs.existsSync(projectDir)) {
@@ -105,5 +127,7 @@ module.exports = {
         buildDir(reqDirs);
         // Build files
         buildFiles(reqFiles);
+        // Glue
+        glue(projectDir, backend, database);
     }
 }
