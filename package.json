@@ -1,0 +1,14 @@
+{
+  "name": "packer",
+  "version": "1.0.0",
+  "description": "Simple but powerful bootstrap for web applications with your custom choices",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Xu",
+  "license": "ISC",
+  "dependencies": {
+    "inquirer": "^7.0.0"
+  }
+}
