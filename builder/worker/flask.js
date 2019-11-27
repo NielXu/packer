@@ -3,7 +3,7 @@
  */
 const path = require('path');
 const { execCommand } = require('../builder.helper');
-const { glueReplace } = require('../glue');
+const { glueReplace, glueAppend } = require('../glue');
 const { info } = require('../builder.logger');
 
 module.exports = {
@@ -35,6 +35,9 @@ module.exports = {
     glue: function(backendDir, database) {
         const requirements = path.resolve(backendDir, 'requirements.txt');
         const db = path.resolve(backendDir, 'database.py');
+        const gitignore = path.resolve(backendDir, '..', '.gitignore');
+        glueAppend(gitignore, "__pycache__");
+        info(`Successfully glue flask in file: ${gitignore}`, true);
         if(database === 'MongoDB') {
             glueReplace('python', requirements, {
                 'DatabaseDependency': 'pymongo'

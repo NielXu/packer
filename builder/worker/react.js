@@ -4,6 +4,7 @@
 const path = require('path');
 const { info } = require('../builder.logger');
 const { execCommand } = require('../builder.helper');
+const { glueAppend } = require('../glue');
 
 module.exports = {
     resolve: function(req, frontendDir) {
@@ -43,6 +44,11 @@ module.exports = {
             source: index,
             target: path.resolve(frontendDir, 'js', 'index.jsx')
         });
+    },
+    glue: function(frontendDir, database) {
+        const gitignore = path.resolve(frontendDir, '..', '.gitignore');
+        glueAppend(gitignore, "node_modules");
+        info(`Successfully glue react in file: ${gitignore}`, true);
     },
     build: function(frontendDir) {
         info(`Installing react dependencies ...`, false, true);

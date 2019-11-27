@@ -89,5 +89,25 @@ module.exports = {
             final += newContent[k] + "\n";
         }
         fs.writeFileSync(file, final);
+    },
+    /**
+     * Append new content to the file, if it is an array,
+     * all of the content will be appended line by line
+     * 
+     * @param {String} file File path
+     * @param {String} content New content to append
+     */
+    glueAppend: function(file, content) {
+        const old = fs.readFileSync(file, 'utf-8');
+        let final = old;
+        if(typeof content === 'string') {
+            final += content + '\n';
+        }
+        else {
+            for(var i=0;i<content.length;i++) {
+                final += content[i] + '\n';
+            }
+        }
+        fs.writeFileSync(file, final);
     }
 }

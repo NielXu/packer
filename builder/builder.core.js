@@ -75,7 +75,7 @@ function buildDir(reqDirs) {
  * @param {String} backend One of the backend option
  * @param {String} database One of the database option
  */
-function glue(dir, backend, database) {
+function glueBackend(dir, backend, database) {
     const backendDir = path.resolve(dir, 'backend');
     try {
         const { glue } = require(`./worker/${backend}`);
@@ -83,6 +83,25 @@ function glue(dir, backend, database) {
     }
     catch(e) {
         error(`Glue is not defined in worker: ${backend}`);
+        process.exit(1);
+    }
+}
+
+/**
+ * Glue the frontend with some files if necessary
+ * 
+ * @param {String} dir Working directory
+ * @param {String} frontend One of the frontend option
+ * @param {String} database One of the database option
+ */
+function glueFrontend(dir, frontend, database) {
+    const frontendDir = path.resolve(dir, 'frontend');
+    try {
+        const { glue } = require(`./worker/${frontend}`);
+        glue(frontendDir, database);
+    }
+    catch(e) {
+        error(`Glue is not defined in worker: ${frontend}`);
         process.exit(1);
     }
 }
@@ -152,6 +171,14 @@ function buildFrontend(dir, frontend) {
 function resolveProject(dir, reqDirs, reqFiles, backend, frontend, database) {
     const scripts = path.resolve(dir, 'scripts');
     reqDirs.push(scripts);
+    // Adding git files
+    reqFiles.push({
+        source: path.resolve(__dirname, 'worker', 'templates', 'git', 'gitignore.txt'),
+        target: path.resolve(dir, '.gitignore')
+    }, {
+        source: path.resolve(__dirname, 'worker', 'templates', 'git', 'readme.txt'),
+        target: path.resolve(dir, 'README.md')
+    })
     if(database === 'MongoDB') {
         reqFiles.push({
             source: path.resolve(__dirname, 'worker', 'templates', 'scripts', 'start.mongo.sh'),
@@ -215,7 +242,8 @@ module.exports = {
         buildFiles(reqFiles);
 
         info(`Modifying template files ...`, false, true);
-        glue(projectDir, backend, database);
+        glueBackend(projectDir, backend, database);
+        glueFrontend(projectDir, frontend, database);
 
         info(`Building backend ...`, false, true);
         buildBackend(projectDir, backend);
