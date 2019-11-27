@@ -2,6 +2,8 @@
  * Responsible for building react frontend
  */
 const path = require('path');
+const { info } = require('../builder.logger');
+const { execCommand } = require('../builder.helper');
 
 module.exports = {
     resolve: function(req, frontendDir) {
@@ -43,6 +45,9 @@ module.exports = {
         });
     },
     build: function(frontendDir) {
-        
+        info(`Installing react dependencies ...`, false, true);
+        execCommand(`cd ${frontendDir} && npm install`);
+        info(`Building js file using webpack ...`, false, true);
+        execCommand(`cd ${frontendDir} && npm run build`);
     }
 }
