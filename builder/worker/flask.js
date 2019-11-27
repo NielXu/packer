@@ -7,12 +7,14 @@ const { glueReplace, glueAppend } = require('../glue');
 const { info } = require('../builder.logger');
 
 module.exports = {
-    resolve: function(req, backendDir) {
+    resolve: function(req, args) {
+        const backendDir = args.backendDir;
         const templates = path.resolve(backendDir, 'templates');
         const static = path.resolve(backendDir, 'static');
         req.push(templates, static);
     },
-    resolveFiles: function(req, backendDir) {
+    resolveFiles: function(req, args) {
+        const backendDir = args.backendDir;
         const flaskDir = path.resolve(__dirname, 'templates', 'flask');
         const requirements = path.resolve(flaskDir, 'req.min.txt');
         const app = path.resolve(flaskDir, 'app.min.txt');
@@ -32,7 +34,9 @@ module.exports = {
             target: path.resolve(backendDir, 'templates', 'index.html')
         });
     },
-    glue: function(backendDir, database) {
+    glue: function(args) {
+        const backendDir = args.backendDir;
+        const database = args.database;
         const requirements = path.resolve(backendDir, 'requirements.txt');
         const db = path.resolve(backendDir, 'database.py');
         const gitignore = path.resolve(backendDir, '..', '.gitignore');
@@ -81,7 +85,8 @@ module.exports = {
             info(`Successfully glue flask and mysql in file: ${db}`, true);
         }
     },
-    build: function(backendDir) {
+    build: function(args) {
+        const backendDir = args.backendDir;
         const venv = path.resolve(backendDir, 'venv');
         const activate = path.resolve(venv, 'bin', 'activate');
         const req = path.resolve(backendDir, 'requirements.txt');

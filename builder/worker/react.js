@@ -7,12 +7,14 @@ const { execCommand } = require('../builder.helper');
 const { glueAppend } = require('../glue');
 
 module.exports = {
-    resolve: function(req, frontendDir) {
+    resolve: function(req, args) {
+        const frontendDir = args.frontendDir;
         const css = path.resolve(frontendDir, 'css');
         const js = path.resolve(frontendDir, 'js');
         req.push(css, js);
     },
-    resolveFiles: function(req, frontendDir) {
+    resolveFiles: function(req, args) {
+        const frontendDir = args.frontendDir;
         const reactDir = path.resolve(__dirname, 'templates', 'react');
         const webpackDir = path.resolve(__dirname, 'templates', 'webpack');
         const package = path.resolve(reactDir, 'package.min.txt');
@@ -45,12 +47,14 @@ module.exports = {
             target: path.resolve(frontendDir, 'js', 'index.jsx')
         });
     },
-    glue: function(frontendDir, database) {
+    glue: function(args) {
+        const frontendDir = args.frontendDir;
         const gitignore = path.resolve(frontendDir, '..', '.gitignore');
         glueAppend(gitignore, "node_modules");
         info(`Successfully glue react in file: ${gitignore}`, true);
     },
-    build: function(frontendDir) {
+    build: function(args) {
+        const frontendDir = args.frontendDir;
         info(`Installing react dependencies ...`, false, true);
         execCommand(`cd ${frontendDir} && npm install`);
         info(`Building js file using webpack ...`, false, true);

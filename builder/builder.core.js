@@ -12,16 +12,16 @@ const { info, error } = require('./builder.logger');
  * 
  * @param {Object} reqDirs An array of required paths
  * @param {Object} reqFiles An array of required files
- * @param {String} frontend One of the frontend option
- * @param {String} dir Working directory
+ * @param {Object} args An object of arguments
  */
-function resolveFrontend(reqDirs, reqFiles, frontend, dir) {
-    const frontendDir = path.resolve(dir, 'frontend');
+function resolveFrontend(reqDirs, reqFiles, args) {
+    const frontendDir = args.frontendDir;
+    const frontend = args.frontend;
     reqDirs.push(frontendDir);
     try {
         const { resolve, resolveFiles } = require(`./worker/${frontend}`);
-        resolve(reqDirs, frontendDir);
-        resolveFiles(reqFiles, frontendDir);
+        resolve(reqDirs, args);
+        resolveFiles(reqFiles, args);
     }
     catch(e) {
         error(`Worker not found: ${frontend}`);
@@ -35,16 +35,16 @@ function resolveFrontend(reqDirs, reqFiles, frontend, dir) {
  * 
  * @param {Object} reqDirs An array of required paths
  * @param {Object} reqFiles An array of required files
- * @param {String} backend One of the backend option
- * @param {String} dir Working directory
+ * @param {Object} args An object of arguments
  */
-function resolveBackend(reqDirs, reqFiles, backend, dir) {
-    const backendDir = path.resolve(dir, 'backend');
+function resolveBackend(reqDirs, reqFiles, args) {
+    const backendDir = args.backendDir;
+    const backend = args.backend;
     reqDirs.push(backendDir);
     try {
         const { resolve, resolveFiles } = require(`./worker/${backend}`);
-        resolve(reqDirs, backendDir);
-        resolveFiles(reqFiles, backendDir);
+        resolve(reqDirs, args);
+        resolveFiles(reqFiles, args);
     }
     catch(e) {
         error(`Worker not found: ${backend}`);
@@ -71,15 +71,13 @@ function buildDir(reqDirs) {
  * and test codes might be different for different backends and
  * databases
  * 
- * @param {String} dir Working directory
- * @param {String} backend One of the backend option
- * @param {String} database One of the database option
+ * @param {String} args An object of arguments
  */
-function glueBackend(dir, backend, database) {
-    const backendDir = path.resolve(dir, 'backend');
+function glueBackend(args) {
+    const backend = args.backend;
     try {
         const { glue } = require(`./worker/${backend}`);
-        glue(backendDir, database);
+        glue(args);
     }
     catch(e) {
         error(`Glue is not defined in worker: ${backend}`);
@@ -90,15 +88,13 @@ function glueBackend(dir, backend, database) {
 /**
  * Glue the frontend with some files if necessary
  * 
- * @param {String} dir Working directory
- * @param {String} frontend One of the frontend option
- * @param {String} database One of the database option
+ * @param {Object} args An object of arguments
  */
-function glueFrontend(dir, frontend, database) {
-    const frontendDir = path.resolve(dir, 'frontend');
+function glueFrontend(args) {
+    const frontend = args.frontend;
     try {
         const { glue } = require(`./worker/${frontend}`);
-        glue(frontendDir, database);
+        glue(args);
     }
     catch(e) {
         error(`Glue is not defined in worker: ${frontend}`);
@@ -123,14 +119,13 @@ function buildFiles(reqFiles) {
  * Building the backend, executing commands and install
  * dependencies.
  * 
- * @param {String} dir Project directory
- * @param {String} backend One of the backend option
+ * @param {Object} args An object of arguments
  */
-function buildBackend(dir, backend) {
-    const backendDir = path.resolve(dir, 'backend');
+function buildBackend(args) {
+    const backend = args.backend;
     try {
         const { build } = require(`./worker/${backend}`);
-        build(backendDir);
+        build(args);
     }
     catch(e) {
         error(`Build is not defined in worker: ${backend}`);
@@ -142,14 +137,13 @@ function buildBackend(dir, backend) {
  * Building the frontend, executing commands and install
  * dependencies.
  * 
- * @param {String} dir Project directory
- * @param {String} frontend One of the frontend option
+ * @param {Object} args An object of arguments
  */
-function buildFrontend(dir, frontend) {
-    const frontendDir = path.resolve(dir, 'frontend');
+function buildFrontend(args) {
+    const frontend = args.frontend;
     try {
         const { build } = require(`./worker/${frontend}`);
-        build(frontendDir);
+        build(args);
     }
     catch(e) {
         error(`Build is not defined in worker: ${frontend}`);
@@ -163,32 +157,31 @@ function buildFrontend(dir, frontend) {
  * 
  * @param {String} dir The project directory
  * @param {Object} reqDirs Required directories
- * @param {Object} reqFiles Required files
- * @param {String} backend One of the backend option
- * @param {String} frontend One of the frontend option
- * @param {String} database One of the database option
+ * @param {Object} args An object of argument
  */
-function resolveProject(dir, reqDirs, reqFiles, backend, frontend, database) {
-    const scripts = path.resolve(dir, 'scripts');
-    reqDirs.push(scripts);
+function resolveProject(reqDirs, reqFiles, args) {
+    const projectDir = args.projectDir;
+    const scriptsDir = args.scriptsDir;
+    const database = args.database;
+    reqDirs.push(scriptsDir);
     // Adding git files
     reqFiles.push({
         source: path.resolve(__dirname, 'worker', 'templates', 'git', 'gitignore.txt'),
-        target: path.resolve(dir, '.gitignore')
+        target: path.resolve(projectDir, '.gitignore')
     }, {
         source: path.resolve(__dirname, 'worker', 'templates', 'git', 'readme.txt'),
-        target: path.resolve(dir, 'README.md')
+        target: path.resolve(projectDir, 'README.md')
     })
     if(database === 'MongoDB') {
         reqFiles.push({
             source: path.resolve(__dirname, 'worker', 'templates', 'scripts', 'start.mongo.sh'),
-            target: path.resolve(scripts, 'startdb.sh')
+            target: path.resolve(scriptsDir, 'startdb.sh')
         })
     }
     else if(database === 'MySQL') {
         reqFiles.push({
             source: path.resolve(__dirname, 'worker', 'templates', 'scripts', 'start.mysql.sh'),
-            target: path.resolve(scripts, 'startdb.sh')
+            target: path.resolve(scriptsDir, 'startdb.sh')
         })
     }
 }
@@ -197,9 +190,9 @@ function resolveProject(dir, reqDirs, reqFiles, backend, frontend, database) {
  * The step after successfully building the frontend and the
  * backend.
  * 
- * @param {String} dir Project directory
+ * @param {Object} args An object of arguments
  */
-function postBuild(dir) {
+function postBuild(args) {
 
 }
 
@@ -230,28 +223,39 @@ module.exports = {
         if(fs.existsSync(projectDir)) {
             throw `Project '${name}' already exists under directory '${path.resolve(dir)}'`;
         }
+        const args = {
+            dir: dir,
+            projectDir: projectDir,
+            projectName: name,
+            backend: backend,
+            backendDir: path.resolve(projectDir, 'backend'),
+            frontend: frontend,
+            frontendDir: path.resolve(projectDir, 'frontend'),
+            database: database,
+            scriptsDir: path.resolve(projectDir, 'scripts'),
+        }
 
         info(`Initializing project structure ...`, false, true);
         reqDirs.push(projectDir);
-        resolveProject(projectDir, reqDirs, reqFiles, backend, frontend, database);
-        resolveBackend(reqDirs, reqFiles, backend, projectDir);
-        resolveFrontend(reqDirs, reqFiles, frontend, projectDir);
+        resolveProject(reqDirs, reqFiles, args);
+        resolveBackend(reqDirs, reqFiles, args);
+        resolveFrontend(reqDirs, reqFiles, args);
 
         info(`Building project directories and files ...`, false, true);
         buildDir(reqDirs);
         buildFiles(reqFiles);
 
         info(`Modifying template files ...`, false, true);
-        glueBackend(projectDir, backend, database);
-        glueFrontend(projectDir, frontend, database);
+        glueBackend(args);
+        glueFrontend(args);
 
         info(`Building backend ...`, false, true);
-        buildBackend(projectDir, backend);
+        buildBackend(args);
 
         info(`Building frontend ...`, false, true);
-        buildFrontend(projectDir, frontend);
+        buildFrontend(args);
 
         info(`Running post build ...`, false, true);
-        postBuild(projectDir);
+        postBuild(args);
     }
 }
