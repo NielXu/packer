@@ -152,7 +152,7 @@ module.exports = {
      * 
      * @throws Exception if directory already exists
      */
-    build: function(dir, name, backend, frontend, useConfig, database) {
+    build: function(dir, name, backend, frontend, database) {
         const projectDir = path.resolve(dir, name);
         info(`Running packer with configurations: `, true);
         info(`\tProject directory: ${projectDir}`, true);
@@ -160,7 +160,6 @@ module.exports = {
         info(`\tBackend choice: ${backend}`, true);
         info(`\tFrontend choice: ${frontend}`, true);
         info(`\tDatabase choice: ${database}`, true);
-        info(`\tUsing config files: ${useConfig}`, true);
         
         let reqDirs = [], reqFiles = [];
         if(fs.existsSync(projectDir)) {

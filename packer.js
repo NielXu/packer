@@ -41,17 +41,12 @@ var questions = [
         message: 'Please choose your database:',
         choices: ['MongoDB', 'MySQL', 'PostgreSQL']
     },
-    {
-        type: 'confirm',
-        name: 'useConfig',
-        message: 'Use config files?',
-    }
 ];
 
 inquirer.prompt(questions).then(answers => {
     try {
         build(answers.workdir, answers.name, answers.backend,
-            answers.frontend, answers.useConfig, answers.database);
+            answers.frontend, answers.database);
         info(`Project built successfully`, false, true);
     }
     catch(e) {
