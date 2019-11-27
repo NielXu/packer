@@ -47,7 +47,7 @@ module.exports = {
                     'timeout = 5000',
                     'client = pymongo.MongoClient(host=host, port=port, serverSelectionTimeoutMS=timeout)'
                 ],
-                'DatabaseTest': 'client.database_names()'
+                'DatabaseTest': 'client.list_database_names()'
             });
             console.log(`Successfully glue flask and MongoDB in file: ${db}`);
         }
