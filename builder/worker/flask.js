@@ -4,6 +4,7 @@
 const path = require('path');
 const { execCommand } = require('../builder.helper');
 const { glueReplace } = require('../glue');
+const { info } = require('../builder.logger');
 
 module.exports = {
     resolve: function(req, backendDir) {
@@ -38,7 +39,7 @@ module.exports = {
             glueReplace('python', requirements, {
                 'DatabaseDependency': 'pymongo'
             });
-            console.log(`Successfully glue flask and MongoDB in file: ${requirements}`);
+            info(`Successfully glue flask and MongoDB in file: ${requirements}`, true);
             glueReplace('python', db, {
                 'DatabaseImport': 'import pymongo',
                 'DatabaseConfig': [
@@ -49,18 +50,16 @@ module.exports = {
                 ],
                 'DatabaseTest': 'client.list_database_names()'
             });
-            console.log(`Successfully glue flask and MongoDB in file: ${db}`);
+            info(`Successfully glue flask and MongoDB in file: ${db}`, true);
         }
     },
     build: function(backendDir) {
         const venv = path.resolve(backendDir, 'venv');
         const activate = path.resolve(venv, 'bin', 'activate');
         const req = path.resolve(backendDir, 'requirements.txt');
-        console.log(`Setting up virtualenv for flask backend ...`);
+        info(`Setting up virtualenv for flask backend ...`, false, true);
         execCommand(`virtualenv ${venv}`);
-        console.log(`Activating virtualenv ...`);
-        execCommand(`source ${activate}`);
-        console.log(`Installing dependencies ...`);
-        execCommand(`pip install -r ${req}`);
+        info(`Installing dependencies in virtualenv ...`, false, true);
+        execCommand(`source ${activate} && pip install -r ${req}`);
     },
 }

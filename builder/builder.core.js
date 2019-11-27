@@ -82,7 +82,7 @@ function glue(dir, backend, database) {
         glue(backendDir, database);
     }
     catch(e) {
-        error(`Glue is not defined in worker: ${backendDir}`);
+        error(`Glue is not defined in worker: ${backend}`);
         process.exit(1);
     }
 }
@@ -98,6 +98,44 @@ function buildFiles(reqFiles) {
         fs.copyFileSync(e.source, e.target);
         info(`Successfully created file: ${e.target}`, true);
     });
+}
+
+/**
+ * Building the backend, executing commands and install
+ * dependencies.
+ * 
+ * @param {String} dir Project directory
+ * @param {String} backend One of the backend option
+ */
+function buildBackend(dir, backend) {
+    const backendDir = path.resolve(dir, 'backend');
+    try {
+        const { build } = require(`./worker/${backend}`);
+        build(backendDir);
+    }
+    catch(e) {
+        error(`Build is not defined in worker: ${backend}`);
+        process.exit(1);
+    }
+}
+
+/**
+ * Building the frontend, executing commands and install
+ * dependencies.
+ * 
+ * @param {String} dir Project directory
+ * @param {String} frontend One of the frontend option
+ */
+function buildFrontend(dir, frontend) {
+    const frontendDir = path.resolve(dir, 'frontend');
+    try {
+        const { build } = require(`./worker/${frontend}`);
+        build(frontendDir);
+    }
+    catch(e) {
+        error(`Build is not defined in worker: ${frontend}`);
+        process.exit(1);
+    }
 }
 
 module.exports = {
@@ -140,5 +178,11 @@ module.exports = {
 
         info(`Modifying template files ...`, false, true);
         glue(projectDir, backend, database);
+
+        info(`Building backend ...`, false, true);
+        buildBackend(projectDir, backend);
+
+        info(`Building frontend ...`, false, true);
+        buildFrontend(projectDir, frontend);
     }
 }

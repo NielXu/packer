@@ -56,6 +56,6 @@ inquirer.prompt(questions).then(answers => {
     }
     catch(e) {
         error("Erorr happened when building your web application");
-        print(`Error message:\n ${e}`);
+        print(`Error message:\n${e}`);
     }
 });
