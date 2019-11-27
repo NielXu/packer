@@ -5,6 +5,7 @@
 const path = require('path');
 const fs = require('fs');
 const { info, error } = require('./builder.logger');
+const { execCommand } = require('./builder.helper');
 
 /**
  * Resolving the frontend directories, push all the require
@@ -138,6 +139,38 @@ function buildFrontend(dir, frontend) {
     }
 }
 
+/**
+ * Resolve files and directories on project level, this
+ * is different from the backend and frontend resolving.
+ * 
+ * @param {String} dir The project directory
+ * @param {Object} reqDirs Required directories
+ * @param {Object} reqFiles Required files
+ * @param {String} backend One of the backend option
+ * @param {String} frontend One of the frontend option
+ * @param {String} database One of the database option
+ */
+function resolveProject(dir, reqDirs, reqFiles, backend, frontend, database) {
+    const scripts = path.resolve(dir, 'scripts');
+    reqDirs.push(scripts);
+    if(database === 'MongoDB') {
+        reqFiles.push({
+            source: path.resolve(__dirname, 'worker', 'templates', 'scripts', 'start.mongo.sh'),
+            target: path.resolve(scripts, 'startdb.sh')
+        })
+    }
+}
+
+/**
+ * The step after successfully building the frontend and the
+ * backend.
+ * 
+ * @param {String} dir Project directory
+ */
+function postBuild(dir) {
+    
+}
+
 module.exports = {
     /**
      * Building the directory tree based on the backend
@@ -168,6 +201,7 @@ module.exports = {
 
         info(`Initializing project structure ...`, false, true);
         reqDirs.push(projectDir);
+        resolveProject(projectDir, reqDirs, reqFiles, backend, frontend, database);
         resolveBackend(reqDirs, reqFiles, backend, projectDir);
         resolveFrontend(reqDirs, reqFiles, frontend, projectDir);
 
@@ -183,5 +217,8 @@ module.exports = {
 
         info(`Building frontend ...`, false, true);
         buildFrontend(projectDir, frontend);
+
+        info(`Running post build ...`, false, true);
+        postBuild(projectDir);
     }
 }
