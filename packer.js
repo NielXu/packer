@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 const { build } = require('./builder/builder.core');
+const { error, print, info } = require('./builder/builder.logger');
 
 console.log();
 console.log('Welcome to packer v1.0.0');
@@ -51,9 +52,10 @@ inquirer.prompt(questions).then(answers => {
     try {
         build(answers.workdir, answers.name, answers.backend,
             answers.frontend, answers.useConfig, answers.database);
+        info(`Project built successfully`, false, true);
     }
     catch(e) {
-        console.log("\nErorr happened when building your web application");
-        console.log(e);
+        error("Erorr happened when building your web application");
+        print(`Error message:\n ${e}`);
     }
 });

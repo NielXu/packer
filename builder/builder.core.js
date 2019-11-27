@@ -4,6 +4,7 @@
  */
 const path = require('path');
 const fs = require('fs');
+const { info, error } = require('./builder.logger');
 
 /**
  * Resolving the frontend directories, push all the require
@@ -23,7 +24,7 @@ function resolveFrontend(reqDirs, reqFiles, frontend, dir) {
         resolveFiles(reqFiles, frontendDir);
     }
     catch(e) {
-        console.log(`Worker not found: ${frontend}`);
+        error(`Worker not found: ${frontend}`);
         process.exit(1);
     }
 }
@@ -46,7 +47,7 @@ function resolveBackend(reqDirs, reqFiles, backend, dir) {
         resolveFiles(reqFiles, backendDir);
     }
     catch(e) {
-        console.log(`\nWorker not found: ${backend}`);
+        error(`Worker not found: ${backend}`);
         process.exit(1);
     }
 }
@@ -61,7 +62,7 @@ function resolveBackend(reqDirs, reqFiles, backend, dir) {
 function buildDir(reqDirs) {
     reqDirs.forEach(e => {
         fs.mkdirSync(e);
-        console.log(`Successfully created directory: ${e}`);
+        info(`Successfully created directory: ${e}`, true);
     });
 }
 
@@ -81,7 +82,7 @@ function glue(dir, backend, database) {
         glue(backendDir, database);
     }
     catch(e) {
-        console.log(`Glue is not defined in worker: ${backendDir}`);
+        error(`Glue is not defined in worker: ${backendDir}`);
         process.exit(1);
     }
 }
@@ -95,7 +96,7 @@ function glue(dir, backend, database) {
 function buildFiles(reqFiles) {
     reqFiles.forEach(e => {
         fs.copyFileSync(e.source, e.target);
-        console.log(`Successfully created file: ${e.target}`);
+        info(`Successfully created file: ${e.target}`, true);
     });
 }
 
@@ -115,19 +116,29 @@ module.exports = {
      */
     build: function(dir, name, backend, frontend, useConfig, database) {
         const projectDir = path.resolve(dir, name);
+        info(`Running packer with configurations: `, true);
+        info(`\tProject directory: ${projectDir}`, true);
+        info(`\tProject name: ${name}`, true);
+        info(`\tBackend choice: ${backend}`, true);
+        info(`\tFrontend choice: ${frontend}`, true);
+        info(`\tDatabase choice: ${database}`, true);
+        info(`\tUsing config files: ${useConfig}`, true);
+        
         let reqDirs = [], reqFiles = [];
         if(fs.existsSync(projectDir)) {
             throw `Project '${name}' already exists under directory '${path.resolve(dir)}'`;
         }
+
+        info(`Initializing project structure ...`, false, true);
         reqDirs.push(projectDir);
-        // Resolve backend and frontend
         resolveBackend(reqDirs, reqFiles, backend, projectDir);
         resolveFrontend(reqDirs, reqFiles, frontend, projectDir);
-        // Build directories
+
+        info(`Building project directories and files ...`, false, true);
         buildDir(reqDirs);
-        // Build files
         buildFiles(reqFiles);
-        // Glue
+
+        info(`Modifying template files ...`, false, true);
         glue(projectDir, backend, database);
     }
 }
