@@ -32,7 +32,7 @@ module.exports = {
      * @param {Boolean} v Verbose
      * @param {Boolean} sep Add empty line before and after the message
      */
-    warn: function(msg, v) {
+    warn: function(msg, v, sep) {
         if(v) {
             if(argv.v) {
                 console.log(sep? `\nWARN: ${msg}\n` : `WARN: ${msg}`);
@@ -51,7 +51,7 @@ module.exports = {
      * @param {Boolean} v Verbose
      * @param {Boolean} sep Add empty line before and after the message
      */
-    error: function(msg, v) {
+    error: function(msg, v, sep) {
         if(v) {
             if(argv.v) {
                 console.log(sep? `\nERROR: ${msg}\n` : `ERROR: ${msg}`);
