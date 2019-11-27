@@ -5,7 +5,6 @@
 const path = require('path');
 const fs = require('fs');
 const { info, error } = require('./builder.logger');
-const { execCommand } = require('./builder.helper');
 
 /**
  * Resolving the frontend directories, push all the require
@@ -159,6 +158,12 @@ function resolveProject(dir, reqDirs, reqFiles, backend, frontend, database) {
             target: path.resolve(scripts, 'startdb.sh')
         })
     }
+    else if(database === 'MySQL') {
+        reqFiles.push({
+            source: path.resolve(__dirname, 'worker', 'templates', 'scripts', 'start.mysql.sh'),
+            target: path.resolve(scripts, 'startdb.sh')
+        })
+    }
 }
 
 /**
@@ -168,7 +173,7 @@ function resolveProject(dir, reqDirs, reqFiles, backend, frontend, database) {
  * @param {String} dir Project directory
  */
 function postBuild(dir) {
-    
+
 }
 
 module.exports = {

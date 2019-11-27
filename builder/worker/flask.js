@@ -52,6 +52,31 @@ module.exports = {
             });
             info(`Successfully glue flask and MongoDB in file: ${db}`, true);
         }
+        else if(database === 'MySQL') {
+            glueReplace('python', requirements, {
+                'DatabaseDependency': 'mysql-connector'
+            });
+            info(`Successfully glue flask and mysql in file: ${requirements}`, true);
+            glueReplace('python', db, {
+                'DatabaseImport': 'import mysql.connector as connector',
+                'DatabaseConfig': [
+                    'host="localhost"',
+                    'port=3306',
+                    'user="root"',
+                    'password="password"',
+                    'connection = connector.connect(host=host, port=port, user=user, password=password)',
+                    'cursor = connection.cursor()'
+                ],
+                'DatabaseTest': [
+                    'databases = ("show databases")',
+                    'cursor.execute(databases)',
+                    'li=[]',
+                    'for (databases) in cursor:',
+                    '   li.append(databases[0])'
+                ]
+            });
+            info(`Successfully glue flask and mysql in file: ${db}`, true);
+        }
     },
     build: function(backendDir) {
         const venv = path.resolve(backendDir, 'venv');
