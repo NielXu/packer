@@ -1,0 +1,12 @@
+//!Glue@DatabaseImport
+
+//!Glue@DatabaseConfig
+
+// Connection testing
+async function test() {
+    //!Glue@DatabaseTest
+}
+
+module.exports = {
+    test: test
+}

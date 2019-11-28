@@ -116,6 +116,43 @@ function buildFiles(reqFiles) {
 }
 
 /**
+ * Doing prebuild for the frontend, this is the step before
+ * the actual build
+ * 
+ * @param {Object} args An object of arguments
+ */
+function preBuildFrontend(args) {
+    const frontend = args.frontend;
+    try {
+        const { preBuild } = require(`./worker/${frontend}`);
+        preBuild(args);
+    }
+    catch(e) {
+        error(`PreBuild is not defined in worker: ${frontend}`);
+        process.exit(1);
+    }
+}
+
+/**
+ * Doing prebuild for the backend, this is the step before
+ * the actual build
+ * 
+ * @param {Object} args An object of arguments
+ */
+function preBuildBackend(args) {
+    const backend = args.backend;
+    try {
+        const { preBuild } = require(`./worker/${backend}`);
+        preBuild(args);
+    }
+    catch(e) {
+        error(`PreBuild is not defined in worker: ${backend}`);
+        console.log(e);
+        process.exit(1);
+    }
+}
+
+/**
  * Building the backend, executing commands and install
  * dependencies.
  * 
@@ -187,13 +224,39 @@ function resolveProject(reqDirs, reqFiles, args) {
 }
 
 /**
- * The step after successfully building the frontend and the
- * backend.
+ * Doing postbuild for the frontend, this is the step after
+ * the successful build
  * 
  * @param {Object} args An object of arguments
  */
-function postBuild(args) {
+function postBuildFrontend(args) {
+    const frontend = args.frontend;
+    try {
+        const { postBuild } = require(`./worker/${frontend}`);
+        postBuild(args);
+    }
+    catch(e) {
+        error(`PostBuild is not defined in worker: ${frontend}`);
+        process.exit(1);
+    }
+}
 
+/**
+ * Doing postbuild for the backend, this is the step after
+ * the successful build
+ * 
+ * @param {Object} args An object of arguments
+ */
+function postBuildBackend(args) {
+    const backend = args.backend;
+    try {
+        const { postBuild } = require(`./worker/${backend}`);
+        postBuild(args);
+    }
+    catch(e) {
+        error(`PostBuild is not defined in worker: ${backend}`);
+        process.exit(1);
+    }
 }
 
 module.exports = {
@@ -249,13 +312,17 @@ module.exports = {
         glueBackend(args);
         glueFrontend(args);
 
+        info(`Running prebuild ...`, false, true);
+        preBuildBackend(args);
+        preBuildFrontend(args);
+
         info(`Building backend ...`, false, true);
         buildBackend(args);
-
         info(`Building frontend ...`, false, true);
         buildFrontend(args);
 
         info(`Running post build ...`, false, true);
-        postBuild(args);
+        postBuildBackend(args);
+        postBuildFrontend(args);
     }
 }

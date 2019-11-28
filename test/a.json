@@ -1,0 +1,17 @@
+{
+    "name": "bootstrap-webapp",
+    "version": "1.0.0",
+    "description": "This is a bootstrap webapp created by tool packer",
+    "scripts": {
+      "start": "node backend/index.js",
+      "start:debug": "DEBUG=express:* node backend/index.js",
+      "build": "webpack --progress --config frontend/webpack.dev.js",
+      "build:prod": "webpack --progress --config frontend/webpack.prod.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "express": "^4.17.1"
+    }
+  }

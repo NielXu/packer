@@ -3,7 +3,7 @@
  */
 const path = require('path');
 const { info } = require('../builder.logger');
-const { execCommand } = require('../builder.helper');
+const { execCommand, mergeRequired } = require('../builder.helper');
 const { glueAppend } = require('../glue');
 
 module.exports = {
@@ -53,11 +53,17 @@ module.exports = {
         glueAppend(gitignore, "node_modules");
         info(`Successfully glue react in file: ${gitignore}`, true);
     },
+    preBuild: function(args) {
+        info(`No pre build for react`, true);
+    },
     build: function(args) {
-        const frontendDir = args.frontendDir;
+        const frontendDir = mergeRequired(args)? args.projectDir : args.frontendDir;
         info(`Installing react dependencies ...`, false, true);
         execCommand(`cd ${frontendDir} && npm install`);
         info(`Building js file using webpack ...`, false, true);
         execCommand(`cd ${frontendDir} && npm run build`);
-    }
+    },
+    postBuild: function(args) {
+        info(`No post build for react`, true);
+    },
 }

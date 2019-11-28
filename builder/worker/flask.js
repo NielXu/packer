@@ -85,6 +85,9 @@ module.exports = {
             info(`Successfully glue flask and mysql in file: ${db}`, true);
         }
     },
+    preBuild: function(args) {
+        info(`No pre build for flask`, true);
+    },
     build: function(args) {
         const backendDir = args.backendDir;
         const venv = path.resolve(backendDir, 'venv');
@@ -94,5 +97,8 @@ module.exports = {
         execCommand(`virtualenv ${venv}`);
         info(`Installing dependencies in virtualenv ...`, false, true);
         execCommand(`source ${activate} && pip install -r ${req}`);
+    },
+    postBuild: function(args) {
+        info(`No post build for flask`, true);
     },
 }

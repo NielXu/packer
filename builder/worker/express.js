@@ -1,0 +1,73 @@
+/**
+ * Responsible for building express backend
+ */
+const path = require('path');
+const { glueReplace } = require('../glue');
+const { mergePackage, STRATEGY_BackendPriority, execCommand } = require('../builder.helper');
+const { info } = require('../builder.logger');
+
+module.exports = {
+    resolve: function(req, args) {
+        const static = path.resolve(args.backendDir, 'static');
+        req.push(static);
+    },
+    resolveFiles: function(req, args) {
+        const backendDir = args.backendDir;
+        const expressDir = path.resolve(__dirname, 'templates', 'express');
+        const database = path.resolve(expressDir, 'db.min.txt');
+        const index = path.resolve(expressDir, 'index.min.txt');
+        const html = path.resolve(expressDir, 'index.html.min.txt');
+        const package = path.resolve(expressDir, 'package.min.txt');
+        req.push({
+            source: index,
+            target: path.resolve(backendDir, 'index.js')
+        }, {
+            source: database,
+            target: path.resolve(backendDir, 'database.js')
+        }, {
+            source: html,
+            target: path.resolve(backendDir, 'static', 'index.html')
+        }, {
+            source: package,
+            target: path.resolve(backendDir, 'package.json')
+        });
+    },
+    glue: function(args) {
+        const backendDir = args.backendDir;
+        const database = args.database;
+        const db = path.resolve(backendDir, 'database.js');
+        const package = path.resolve(backendDir, 'package.json');
+        if(database === 'MongoDB') {
+            glueReplace('javascript', package, {
+                'DatabaseDependency': '"mongodb": "^3.3.2"'
+            })
+            info(`Successfully glue express and MongoDB in file: ${package}`, true);
+            glueReplace('javascript', db, {
+                'DatabaseImport': "const MongoClient = require('mongodb').MongoClient;",
+                'DatabaseConfig': [
+                    'const host = "localhost"',
+                    'const port = 27017',
+                    'const dbName = "webapp"',
+                    'const url = `mongodb://${host}:${port}`;'
+                ],
+                'DatabaseTest': [
+                    'let conn = await MongoClient.connect(url, {useUnifiedTopology: true, useNewUrlParser: true});',
+                    'await conn.db(dbName).admin().listDatabases();',
+                    'conn.close();'
+                ]
+            });
+            info(`Successfully glue express and MongoDB in file: ${db}`, true);
+        }
+    },
+    preBuild: function(args) {
+        mergePackage(args, STRATEGY_BackendPriority);
+    },
+    build: function(args) {
+        const projectDir = args.projectDir;
+        info(`Installing express dependencies ...`, false, true);
+        execCommand(`cd ${projectDir} && npm install`);
+    },
+    postBuild: function(args) {
+        info(`No post build for express`, true);
+    },
+}
