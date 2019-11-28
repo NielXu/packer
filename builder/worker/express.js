@@ -75,6 +75,28 @@ module.exports = {
             });
             info(`Successfully glue express and MongoDB in file: ${db}`, true);
         }
+        else if(database === 'MySQL') {
+            glueReplace('javascript', package, {
+                'DatabaseDependency': '"mysql": "^2.17.1"'
+            });
+            info(`Successfully glue express and MySQL in file: ${package}`, true);
+            glueReplace('javascript', db, {
+                'DatabaseImport': "const mysql = require('mysql');",
+                'DatabaseConfig': [
+                    'const host = "localhost";',
+                    'const port = 3306;',
+                    'const user = "root";',
+                    'const password = "password";',
+                    'const connection = mysql.createConnection({host:host, port:port, user:user, password:password});'
+                ],
+                'DatabaseTest': [
+                    "connection.query('show databases', function(error, results, fields) {",
+                    '   if(err) throw err',
+                    '});'
+                ],
+            });
+            info(`Successfully glue express and MySQL in file: ${db}`, true);
+        }
     },
     preBuild: function(args) {
         mergePackage(args, STRATEGY_BackendPriority);
