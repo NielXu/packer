@@ -37,7 +37,7 @@ module.exports = {
         const database = args.database;
         const db = path.resolve(backendDir, 'database.js');
         const package = path.resolve(backendDir, 'package.json');
-        const readme = path.resolve(args.projectDir, 'package.json');
+        const readme = path.resolve(args.projectDir, 'README.md');
         glueReplace('python', readme, {
             'ProjectBackend': [
                 'Using `express` as the backend, to start the server use:',

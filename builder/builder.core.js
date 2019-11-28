@@ -82,6 +82,7 @@ function glueBackend(args) {
     }
     catch(e) {
         error(`Glue is not defined in worker: ${backend}`);
+        console.log(e);
         process.exit(1);
     }
 }
