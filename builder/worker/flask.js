@@ -57,6 +57,8 @@ module.exports = {
                 '```sh',
                 'deactivate',
                 '```',
+                '',
+                'The server will be running on localhost:5000 by default',
             ]
         });
         info(`Successfully glue flask in file: ${readme}`, true);

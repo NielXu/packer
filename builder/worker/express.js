@@ -49,6 +49,8 @@ module.exports = {
                 '```sh',
                 'npm run start:debug',
                 '```',
+                '',
+                'The server will be run running on localhost:5000 by default'
             ]
         });
         info(`Successfully glue express in file: ${readme}`, true);

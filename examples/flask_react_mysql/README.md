@@ -27,6 +27,8 @@ To deactivate the venv:
 deactivate
 ```
 
+The server will be run running on localhost:5000 by default
+
 # Frontend
 Using react as the frontend, to build the js files using webpack, use:
 ```sh

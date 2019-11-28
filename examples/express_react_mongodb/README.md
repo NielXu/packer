@@ -22,6 +22,8 @@ To start the server in debug mode with more information:
 npm run start:debug
 ```
 
+The server will be run running on localhost:5000 by default
+
 # Frontend
 Using react as the frontend, to build the js files using webpack, use:
 ```sh
