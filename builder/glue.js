@@ -79,6 +79,9 @@ module.exports = {
                         }
                     }
                 }
+                else {
+                    newContent.push(content[i]);
+                }
             }
             else {
                 newContent.push(content[i]);

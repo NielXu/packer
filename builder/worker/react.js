@@ -4,7 +4,7 @@
 const path = require('path');
 const { info } = require('../builder.logger');
 const { execCommand, mergeRequired } = require('../builder.helper');
-const { glueAppend } = require('../glue');
+const { glueAppend, glueReplace } = require('../glue');
 
 module.exports = {
     resolve: function(req, args) {
@@ -50,6 +50,20 @@ module.exports = {
     glue: function(args) {
         const frontendDir = args.frontendDir;
         const gitignore = path.resolve(frontendDir, '..', '.gitignore');
+        const readme = path.resolve(args.projectDir, 'README.md');
+        glueReplace('python', readme, {
+            'ProjectFrontend': [
+                `Using react as the frontend, to build the js files using webpack, use:`,
+                '```sh',
+                'npm run build',
+                '```',
+                'To build them in production mode, use:',
+                '```sh',
+                'npm run build:prod',
+                '```',
+            ]
+        });
+        info(`Successfully glue react in file: ${readme}`, true);
         glueAppend(gitignore, "node_modules");
         info(`Successfully glue react in file: ${gitignore}`, true);
     },

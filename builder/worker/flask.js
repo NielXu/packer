@@ -40,6 +40,26 @@ module.exports = {
         const requirements = path.resolve(backendDir, 'requirements.txt');
         const db = path.resolve(backendDir, 'database.py');
         const gitignore = path.resolve(backendDir, '..', '.gitignore');
+        const readme = path.resolve(args.projectDir, 'README.md');
+        glueReplace('python', readme, {
+            'ProjectBackend': [
+                'Using `flask` as the backend, to start the server first activate the venv:',
+                '```sh',
+                'cd backend && source venv/bin/activate',
+                '```',
+                '',
+                'Then start the development server:',
+                '```sh',
+                'python app.py',
+                '```',
+                '',
+                'To deactivate the venv:',
+                '```sh',
+                'deactivate',
+                '```',
+            ]
+        });
+        info(`Successfully glue flask in file: ${readme}`, true);
         glueAppend(gitignore, "__pycache__");
         info(`Successfully glue flask in file: ${gitignore}`, true);
         if(database === 'MongoDB') {

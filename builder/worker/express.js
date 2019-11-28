@@ -37,6 +37,21 @@ module.exports = {
         const database = args.database;
         const db = path.resolve(backendDir, 'database.js');
         const package = path.resolve(backendDir, 'package.json');
+        const readme = path.resolve(args.projectDir, 'package.json');
+        glueReplace('python', readme, {
+            'ProjectBackend': [
+                'Using `express` as the backend, to start the server use:',
+                '```sh',
+                'npm start',
+                '```',
+                '',
+                'To start the server in debug mode with more information:',
+                '```sh',
+                'npm run start:debug',
+                '```',
+            ]
+        });
+        info(`Successfully glue express in file: ${readme}`, true);
         if(database === 'MongoDB') {
             glueReplace('javascript', package, {
                 'DatabaseDependency': '"mongodb": "^3.3.2"'
